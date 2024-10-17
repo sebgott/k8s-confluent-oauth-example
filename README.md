@@ -1,6 +1,9 @@
 # Deploy
 🚧 This guide is currently WIP 🚧
 
+## Prerequesites
+- Docker capabilities*
+- k8s cluster (for example minikube)
 
 ## Deploy operator
 ```helm upgrade --install operator confluentinc/confluent-for-kubernetes --namespace confluent --version 0.1033.3```
