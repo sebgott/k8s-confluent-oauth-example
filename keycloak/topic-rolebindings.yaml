@@ -1,0 +1,46 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: owner.resource-owner
+  namespace: operator
+spec:
+  principal:
+    type: group
+    name: "/g4"
+  role: ResourceOwner
+  resourcePatterns:
+  - name: cloud.test.produce
+    patternType: PREFIXED
+    resourceType: Topic
+
+---
+
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: owner-user.resource-owner
+  namespace: operator
+spec:
+  principal:
+    type: user
+    name: 7f8a1b58-2584-4058-9cc8-7171f91b4920
+  role: ResourceOwner
+  resourcePatterns:
+  - name: cloud.test.produce
+    patternType: PREFIXED
+    resourceType: Topic
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: client.developer-write
+  namespace: operator
+spec:
+  principal:
+    type: user
+    name: oauth-client
+  role: DeveloperWrite
+  resourcePatterns:
+  - name: cloud.test.produce
+    patternType: PREFIXED
+    resourceType: Topic
