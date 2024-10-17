@@ -2,7 +2,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ConfluentRolebinding
 metadata:
   name: owner.resource-owner
-  namespace: operator
+  namespace: confluent
 spec:
   principal:
     type: group
@@ -19,7 +19,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ConfluentRolebinding
 metadata:
   name: owner-user.resource-owner
-  namespace: operator
+  namespace: confluent
 spec:
   principal:
     type: user
@@ -34,7 +34,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ConfluentRolebinding
 metadata:
   name: client.developer-write
-  namespace: operator
+  namespace: confluent
 spec:
   principal:
     type: user

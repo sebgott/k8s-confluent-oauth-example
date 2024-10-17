@@ -2,7 +2,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: KRaftController
 metadata:
   name: kraftcontroller
-  namespace: operator
+  namespace: confluent
 spec:
   dataVolumeCapacity: 10G
   image:
@@ -45,7 +45,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: Kafka
 metadata:
   name: kafka
-  namespace: operator
+  namespace: confluent
 spec:
   replicas: 3
   image:
@@ -120,7 +120,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: KafkaRestClass
 metadata:
   name: default
-  namespace: operator
+  namespace: confluent
 spec:
   kafkaRest:
     authentication:
@@ -135,7 +135,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: SchemaRegistry
 metadata:
   name: schemaregistry
-  namespace: operator
+  namespace: confluent
 spec:
   replicas: 1
   image:
@@ -172,7 +172,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: Connect
 metadata:
   name: connect
-  namespace: operator
+  namespace: confluent
 spec:
   podTemplate:
     probe:
@@ -228,7 +228,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ControlCenter
 metadata:
   name: controlcenter
-  namespace: operator
+  namespace: confluent
 spec:
   configOverrides:
     server:

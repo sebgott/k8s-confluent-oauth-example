@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: keycloak
-  namespace: operator
+  namespace: confluent
   labels:
     app: keycloak
 spec:
@@ -18,7 +18,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: keycloak
-  namespace: operator
+  namespace: confluent
   labels:
     app: keycloak
 spec:
@@ -2251,5 +2251,5 @@ data:
 kind: ConfigMap
 metadata:
   name: keycloak-configmap
-  namespace: operator
+  namespace: confluent
 ---

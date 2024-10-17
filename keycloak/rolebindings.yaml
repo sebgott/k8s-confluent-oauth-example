@@ -3,7 +3,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ConfluentRolebinding
 metadata:
   name: testuser1-cfrb-kafka
-  namespace: operator
+  namespace: confluent
 spec:
   principal:
     name: "/g1" # corresponding group from idp against testuser1
@@ -14,7 +14,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ConfluentRolebinding
 metadata:
   name: owner-operator-kafka
-  namespace: operator
+  namespace: confluent
 spec:
   principal:
     name: "/g4" # corresponding group from idp against testuser1
@@ -26,7 +26,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ConfluentRolebinding
 metadata:
   name: sebastian-admin-kafka
-  namespace: operator
+  namespace: confluent
 spec:
   principal:
     name: "/g2" # corresponding group from idp against testuser1
@@ -40,7 +40,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ConfluentRolebinding
 metadata:
   name: testuser1-rb-connect
-  namespace: operator
+  namespace: confluent
 spec:
   principal:
     name: "/g1" # corresponding sub from keycloak against testuser1
@@ -59,7 +59,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ConfluentRolebinding
 metadata:
   name: testuser1-rb-sr
-  namespace: operator
+  namespace: confluent
 spec:
   principal:
     name: "/g1" # corresponding sub from keycloak against testuser1
@@ -74,7 +74,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ConfluentRolebinding
 metadata:
   name: testuser1-rb-ksql
-  namespace: operator
+  namespace: confluent
 spec:
   principal:
     name: "/g1" # corresponding sub from keycloak against testuser1
