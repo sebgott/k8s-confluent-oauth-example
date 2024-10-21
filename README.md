@@ -30,6 +30,12 @@ kubectl create secret tls ca-pair-sslcerts \
   --cert=ca.pem \
   --key=ca-key.pem -n confluent
 
+kubectl create secret generic tls-group1 \
+--from-file=fullchain.pem=certs/generated/server.pem \
+--from-file=cacerts.pem=certs/generated/ca.pem \
+--from-file=privkey.pem=certs/generated/server-key.pem \
+-n confluent
+
 kubectl create secret generic credential \
 --from-file=plain-users.json=creds-kafka-sasl-users.json \
 --from-file=plain.txt=creds-client-kafka-sasl-user.txt \

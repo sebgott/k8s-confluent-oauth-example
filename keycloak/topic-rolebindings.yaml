@@ -23,7 +23,7 @@ metadata:
 spec:
   principal:
     type: user
-    name: 7f8a1b58-2584-4058-9cc8-7171f91b4920
+    name: 163ee8e8-04f8-4de2-ba22-daf394eea8f1
   role: ResourceOwner
   resourcePatterns:
   - name: cloud.test.produce
@@ -38,9 +38,27 @@ metadata:
 spec:
   principal:
     type: user
-    name: oauth-client
+    name: a4e5acd5-c506-4100-909e-63a90199f398 # oauth-client
   role: DeveloperWrite
   resourcePatterns:
   - name: cloud.test.produce
     patternType: PREFIXED
     resourceType: Topic
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: client.developer-read
+  namespace: confluent
+spec:
+  principal:
+    type: user
+    name: a4e5acd5-c506-4100-909e-63a90199f398 # oauth-client
+  role: DeveloperRead
+  resourcePatterns:
+  - name: cloud.test.produce
+    patternType: PREFIXED
+    resourceType: Topic
+  - name: client-
+    patternType: PREFIXED
+    resourceType: Group
