@@ -69,6 +69,7 @@ spec:
           jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
           groupsClaimName: groups
           scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
+          audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
           subClaimName: sub
   authorization:
     type: rbac
@@ -86,7 +87,9 @@ spec:
           configurations:
             expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
             jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
+            audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
             scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
+            groupsClaimName: groups
             subClaimName: sub
         sso:
           enabled: true
@@ -98,6 +101,7 @@ spec:
             jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
             authorizeBaseEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/authorize
             tokenBaseEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
+            audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
             groupsClaimName: groups
             refreshToken: false
   dependencies:
@@ -120,12 +124,27 @@ spec:
           tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
           expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
           jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
+          audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
           scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
           subClaimName: sub
   configOverrides:
     server:
       - listener.name.external.oauthbearer.sasl.server.callback.handler.class=org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerValidatorCallbackHandler
       - listener.name.external.oauthbearer.sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required;
+    log4j:
+      - log4j.logger.io.confluent.rest-utils=DEBUG, stdout
+      - log4j.additivity.io.confluent.rest-utils=false
+      - log4j.logger.io.confluent.rbacapi=DEBUG, stdout
+      - log4j.additivity.io.confluent.rbacapi=false
+      - log4j.logger.io.confluent.tokenapi=DEBUG, stdout
+      - log4j.additivity.io.confluent.tokenapi=false
+      - log4j.logger.io.confluent.security.auth=DEBUG, stdout
+      - log4j.additivity.io.confluent.security.auth=false
+      - log4j.logger.io.confluent.security.store=DEBUG, stdout
+      - log4j.additivity.io.confluent.security.store=false
+      - log4j.logger.io.confluent.common.security.jetty=DEBUG, stdout
+      - log4j.additivity.io.confluent.common.security.jetty=false
+      - log4j.logger.io.confluent.security.auth.provider.ldap=TRACE, stdout
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: KafkaRestClass
@@ -140,6 +159,7 @@ spec:
         secretRef: oauth-jass
         configuration:
           tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
+          audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
           scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
 ---
 apiVersion: platform.confluent.io/v1beta1
@@ -173,6 +193,7 @@ spec:
             tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
             expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
             jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
+            audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
             scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
             subClaimName: sub
       tls:
@@ -228,6 +249,7 @@ spec:
             tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
             expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
             jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
+            audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
             scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
             subClaimName: sub
       tls:
@@ -284,6 +306,7 @@ spec:
             tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
             expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
             jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
+            audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
             subClaimName: sub
             groupsClaimName: groups
             scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default

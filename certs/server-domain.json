@@ -1,7 +1,7 @@
 {
-  "CN": "*.my.domain",
+  "CN": "*localhost",
   "hosts": [
-    "*.my.domain",
+    "*localhost",
     "*.confluent.svc.cluster.local",
     "*.zookeeper.confluent.svc.cluster.local",
     "zookeeper",
@@ -16,7 +16,9 @@
     "*.zookeeper.destination.svc.cluster.local",
     "*.kraftcontroller.destination.svc.cluster.local",
     "*.kafka.destination.svc.cluster.local",
-    "*.replicator.destination.svc.cluster.local"
+    "*.replicator.destination.svc.cluster.local",
+    "localhost:9021",
+    "localhost:9021/api/metadata/security/1.0/oidc/authorization-code/callback"
   ],
   "key": {
     "algo": "rsa",
