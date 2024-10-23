@@ -1,0 +1,286 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: Zookeeper
+metadata:
+  name: zookeeper
+  namespace: confluent
+spec:
+  replicas: 3
+  image:
+    application: confluentinc/cp-zookeeper:7.7.1
+    init: confluentinc/confluent-init-container:2.9.3
+  dataVolumeCapacity: 10Gi
+  logVolumeCapacity: 10Gi
+  authentication:
+    type: digest
+    jaasConfig:
+      secretRef: credential
+    # oauthSettings:
+    #   tokenEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+  tls:
+    secretRef: tls-group1
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Kafka
+metadata:
+  name: kafka
+  namespace: confluent
+spec:
+  replicas: 3
+  image:
+    application: confluentinc/cp-server:7.7.1
+    init: confluentinc/confluent-init-container:2.9.3
+  dataVolumeCapacity: 10Gi
+  tls:
+    secretRef: tls-group1
+  listeners:
+    internal:
+      authentication:
+        type: plain
+        jaasConfig:
+          secretRef: credential
+      tls:
+        enabled: true
+    external:
+      authentication:
+        type: oauth
+        jaasConfig:
+          secretRef: oauth-jass
+        oauthSettings:
+          tokenEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+          expectedIssuer: http://keycloak:8080/realms/sso_test
+          jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+          groupsClaimName: profile_groups
+          subClaimName: sub
+  authorization:
+    type: rbac
+    superUsers:
+      - User:ssologin
+      - User:kafka
+  services:
+    mds:
+      tls:
+        enabled: true
+      tokenKeyPair:
+        secretRef: mds-token
+      provider:
+        oauth:
+          configurations:
+            expectedIssuer: http://keycloak:8080/realms/sso_test
+            jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+            subClaimName: client_id
+        sso:
+          enabled: true
+          clientCredentials:
+            secretRef: oauth-jass-oidc
+          configurations:
+            groupsClaimName: profile_groups
+            subClaimName: sub
+            issuer: http://keycloak:8080/realms/sso_test
+            jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+            authorizeBaseEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/auth
+            tokenBaseEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+            refreshToken: true
+  dependencies:
+    # kRaftController:
+    #   controllerListener:
+    #     tls:
+    #       enabled: true
+    #     authentication:
+    #       type: plain
+    #       jaasConfig:
+    #         secretRef: credential
+    #   clusterRef:
+    #     name: kraftcontroller
+    zookeeper:
+      endpoint: zookeeper:2182
+      authentication:
+        type: digest
+        jaasConfig:
+          secretRef: credential
+        # oauthSettings:
+        #   tokenEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+        #   expectedIssuer: http://keycloak:8080/realms/sso_test
+        #   jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+        #   subClaimName: client_id
+      tls:
+        enabled: true
+    kafkaRest:
+      authentication:
+        type: oauth
+        jaasConfig:
+          secretRef: oauth-jass
+        oauthSettings:
+          tokenEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+          expectedIssuer: http://keycloak:8080/realms/sso_test
+          jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+          subClaimName: client_id
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: default
+  namespace: confluent
+spec:
+  kafkaRest:
+    authentication:
+      type: oauth
+      oauth:
+        secretRef: oauth-jass
+        configuration:
+          tokenEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+          expectedIssuer: http://keycloak:8080/realms/sso_test
+          jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: SchemaRegistry
+metadata:
+  name: schemaregistry
+  namespace: confluent
+spec:
+  replicas: 1
+  image:
+    application: confluentinc/cp-schema-registry:7.7.1
+    init: confluentinc/confluent-init-container:2.9.3
+  tls:
+    secretRef: tls-group1
+  authorization:
+    type: rbac
+  dependencies:
+    kafka:
+      bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+      tls:
+        enabled: true
+    mds:
+      endpoint: https://kafka.confluent.svc.cluster.local:8090
+      tokenKeyPair:
+        secretRef: mds-token
+      authentication:
+        type: oauth
+        oauth:
+          secretRef: oauth-jass
+          configuration:
+            tokenEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+            expectedIssuer: http://keycloak:8080/realms/sso_test
+            jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+            subClaimName: client_id
+      tls:
+        enabled: true
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: Connect
+metadata:
+  name: connect
+  namespace: confluent
+spec:
+  podTemplate:
+    probe:
+      liveness:
+        periodSeconds: 400
+        failureThreshold: 1
+        timeoutSeconds: 5
+      readiness:
+        periodSeconds: 400
+        failureThreshold: 5
+        timeoutSeconds: 5
+  replicas: 2
+  image:
+    application: confluentinc/cp-server-connect:7.7.1
+    init: confluentinc/confluent-init-container:2.9.3
+  build:
+    type: onDemand
+    onDemand:
+      plugins:
+        locationType: confluentHub
+        confluentHub:
+          - name: kafka-connect-datagen
+            owner: confluentinc
+            version: 0.5.2
+  tls:
+    secretRef: tls-group1
+  authorization:
+    type: rbac
+  dependencies:
+    kafka:
+      bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+      tls:
+        enabled: true
+    mds:
+      endpoint: https://kafka.confluent.svc.cluster.local:8090
+      tokenKeyPair:
+        secretRef: mds-token
+      authentication:
+        type: oauth
+        oauth:
+          secretRef: oauth-jass
+          configuration:
+            tokenEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+            expectedIssuer: http://keycloak:8080/realms/sso_test
+            jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+            subClaimName: client_id
+      tls:
+        enabled: true
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ControlCenter
+metadata:
+  name: controlcenter
+  namespace: confluent
+spec:
+  configOverrides:
+    server:
+      - control.center.replication.factor=3
+      - control.center.internal.topics.replication.factor=3
+  replicas: 1
+  podTemplate:
+    probe:
+      liveness:
+        periodSeconds: 200
+        failureThreshold: 1
+        timeoutSeconds: 5
+      readiness:
+        periodSeconds: 200
+        failureThreshold: 5
+        timeoutSeconds: 5
+  image:
+    application: confluentinc/cp-enterprise-control-center:7.7.1
+    init: confluentinc/confluent-init-container:2.9.3
+  dataVolumeCapacity: 10Gi
+  authorization:
+    type: rbac
+  tls:
+    secretRef: tls-group1
+  dependencies:
+    kafka:
+      bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+      authentication:
+        type: plain
+        jaasConfig:
+          secretRef: credential
+      tls:
+        enabled: true
+    mds:
+      ssoProtocol: oidc
+      endpoint: https://kafka.confluent.svc.cluster.local:8090
+      tokenKeyPair:
+        secretRef: mds-token
+      authentication:
+        type: oauth
+        oauth:
+          secretRef: oauth-jass
+          configuration:
+            tokenEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+            expectedIssuer: http://keycloak:8080/realms/sso_test
+            jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+            groupsClaimName: profile_groups
+            subClaimName: client_id
+      tls:
+        enabled: true
+    connect:
+      - name: connect
+        url:  https://connect.confluent.svc.cluster.local:8083
+        tls:
+          enabled: true
+    schemaRegistry:
+      url: https://schemaregistry.confluent.svc.cluster.local:8081
+      tls:
+        enabled: true

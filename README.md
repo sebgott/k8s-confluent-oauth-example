@@ -40,6 +40,14 @@ kubectl create secret generic tls-group1 \
 kubectl create secret generic credential \
 --from-file=plain-users.json=creds-kafka-sasl-users.json \
 --from-file=plain.txt=creds-client-kafka-sasl-user.txt \
+--from-file=digest.txt=digest.txt \
+--from-file=digest-users.json=digest-users.json \
+--from-file=oidcClientSecret.txt=oidcClientSecret.txt \
+-n confluent
+
+kubectl create secret generic credential \
+--from-file=plain-users.json=creds-kafka-sasl-users.json \
+--from-file=plain.txt=creds-client-kafka-sasl-user.txt \
 --from-file=oidcClientSecret.txt=oidcClientSecret.txt \
 -n confluent
 
