@@ -18,6 +18,9 @@ kubectl -n confluent create secret generic oauth-jass-oidc --from-file=oidcClien
 
 ```kubectl apply -f keycloak_deploy.yaml```
 
+## Deploy OpenLDAP
+```helm upgrade --install -f ldap/ldaps-rbac.yaml test-ldap ldap --namespace confluent```
+
 ## Create Secrets
 ```
 openssl genrsa -out ca-key.pem 2048
@@ -37,12 +40,18 @@ kubectl create secret generic tls-group1 \
 --from-file=privkey.pem=certs/generated/server-key.pem \
 -n confluent
 
+kubectl create secret generic rest-credential \
+--from-file=bearer.txt=bearer.txt \
+--from-file=basic.txt=bearer.txt \
+-n confluent
+
 kubectl create secret generic credential \
 --from-file=plain-users.json=creds-kafka-sasl-users.json \
 --from-file=plain.txt=creds-client-kafka-sasl-user.txt \
 --from-file=digest.txt=digest.txt \
 --from-file=digest-users.json=digest-users.json \
 --from-file=oidcClientSecret.txt=oidcClientSecret.txt \
+--from-file=ldap.txt=ldap.txt \
 -n confluent
 
 kubectl create secret generic credential \
@@ -109,4 +118,3 @@ spec:
 
 ## Producer/Consumer access
 WIP
-

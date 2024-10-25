@@ -62,3 +62,37 @@ spec:
   - name: client-
     patternType: PREFIXED
     resourceType: Group
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: ldap.developer-write
+  namespace: confluent
+spec:
+  principal:
+    type: group
+    name: readonlyusers # ldap group
+  role: DeveloperWrite
+  resourcePatterns:
+  - name: cloud.test.produce
+    patternType: PREFIXED
+    resourceType: Topic
+  kafkaRestClassRef:
+    name: default-ldap
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: ldap-user.developer-write
+  namespace: confluent
+spec:
+  principal:
+    type: user
+    name: alice # ldap user
+  role: DeveloperWrite
+  resourcePatterns:
+  - name: cloud.test.produce
+    patternType: PREFIXED
+    resourceType: Topic
+  kafkaRestClassRef:
+    name: default-ldap

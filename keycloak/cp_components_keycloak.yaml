@@ -59,6 +59,7 @@ spec:
         enabled: true
     external:
       authentication:
+        # type: ldap
         type: oauth
         jaasConfig:
           secretRef: oauth-jass
@@ -80,6 +81,24 @@ spec:
       tokenKeyPair:
         secretRef: mds-token
       provider:
+        ldap:
+          address: ldap://ldap.confluent.svc.cluster.local:389
+          authentication:
+            type: simple
+            simple:
+              secretRef: credential
+          tls:
+            enabled: false
+          configurations:
+            groupNameAttribute: cn
+            groupObjectClass: group
+            groupMemberAttribute: member
+            groupMemberAttributePattern: CN=(.*),DC=test,DC=com
+            groupSearchBase: dc=test,dc=com
+            userNameAttribute: cn
+            userMemberOfAttributePattern: CN=(.*),DC=test,DC=com
+            userObjectClass: organizationalRole
+            userSearchBase: dc=test,dc=com
         oauth:
           configurations:
             expectedIssuer: http://keycloak:8080/realms/sso_test
@@ -136,6 +155,20 @@ spec:
           jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
 ---
 apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: default-ldap
+  namespace: confluent
+spec:
+  kafkaClusterRef:
+    name: kafka
+  kafkaRest:
+    authentication:
+      type: bearer
+      bearer:
+        secretRef: rest-credential
+---
+apiVersion: platform.confluent.io/v1beta1
 kind: SchemaRegistry
 metadata:
   name: schemaregistry
@@ -176,6 +209,16 @@ metadata:
   name: connect
   namespace: confluent
 spec:
+  configOverrides:
+    server:
+    # This is required due to limitation on connect worker in 7.7 for this upgrade
+    # configurations for producer, consumer & admin should remain same as in case of ldap 
+     - producer.sasl.login.callback.handler.class=io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler 
+     - producer.sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required metadataServerUrls="https://kafka.operator.svc.cluster.local:8090" username="connect" password="connect-secret";
+     - consumer.sasl.login.callback.handler.class=io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
+     - consumer.sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required metadataServerUrls="https://kafka.operator.svc.cluster.local:8090" username="connect" password="connect-secret";
+     - admin.sasl.login.callback.handler.class=io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler 
+     - admin.sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required metadataServerUrls="https://kafka.operator.svc.cluster.local:8090" username="connect" password="connect-secret";
   podTemplate:
     probe:
       liveness:
@@ -288,3 +331,115 @@ spec:
       url: https://schemaregistry.confluent.svc.cluster.local:8081
       tls:
         enabled: true
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: oauth-new-cfrb-c3
+  namespace: confluent
+spec:
+  principal:
+    name: ssologin
+    type: user
+  role: SystemAdmin
+  kafkaRestClassRef:
+    name: default
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: oauth-new-cfrb-sr-0
+  namespace: confluent
+spec:
+  clustersScopeByIds:
+    schemaRegistryClusterId: id_schemaregistry_operator
+  principal:
+    name: ssologin
+    type: user
+  role: SystemAdmin
+  kafkaRestClassRef:
+    name: default
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: oauth-new-cfrb-sr-1
+  namespace: confluent
+spec:
+  principal:
+    name: ssologin
+    type: user
+  resourcePatterns:
+    - name: _confluent-license
+      patternType: LITERAL
+      resourceType: Topic
+    - name: _confluent-command
+      patternType: LITERAL
+      resourceType: Topic
+    - name: _exporter_configs
+      patternType: LITERAL
+      resourceType: Topic
+    - name: _exporter_states
+      patternType: LITERAL
+      resourceType: Topic
+    - name: _schemas_schemaregistry_operator
+      patternType: LITERAL
+      resourceType: Topic
+    - name: id_schemaregistry_operator
+      patternType: LITERAL
+      resourceType: Group
+  role: ResourceOwner
+  kafkaRestClassRef:
+    name: default
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: oauth-new-cfrb-connect-0
+  namespace: confluent
+spec:
+  clustersScopeByIds:
+    connectClusterId: operator.connect
+  principal:
+    name: ssologin
+    type: user
+  role: SecurityAdmin
+  kafkaRestClassRef:
+    name: default
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: oauth-new-cfrb-connect-1
+  namespace: confluent
+spec:
+  principal:
+    name: ssologin
+    type: user
+  resourcePatterns:
+    - name: operator.connect
+      patternType: LITERAL
+      resourceType: Group
+    - name: operator.connect-
+      patternType: PREFIXED
+      resourceType: Topic
+  role: ResourceOwner
+  kafkaRestClassRef:
+    name: default
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: oauth-new-cfrb-connect-2
+  namespace: confluent
+spec:
+  principal:
+    name: ssologin
+    type: user
+  resourcePatterns:
+    - name: _confluent-monitoring
+      patternType: PREFIXED
+      resourceType: Topic
+  role: DeveloperWrite
+  kafkaRestClassRef:
+    name: default

@@ -11,7 +11,7 @@ spec:
   listeners:
     controller:
       tls:
-        enabled: true
+        enabled: false
       authentication:
         type: plain
         jaasConfig:
@@ -20,7 +20,7 @@ spec:
     type: rbac
     superUsers:
       - User:kafka
-      - User:dbfa0b9c-17f5-4549-a082-ca1ab88af522
+      - User:<client-id>
   dependencies:
     mdsKafkaCluster:
       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9073
@@ -29,10 +29,10 @@ spec:
         jaasConfig:
           secretRef: oauth-jass
         oauthSettings:
-          tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
-          scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
+          tokenEndpointUri: https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
+          scope: api://<client-id>/.default
       tls:
-        enabled: true
+        enabled: false
   tls:
     secretRef: tls-group1
   replicas: 3
@@ -57,38 +57,38 @@ spec:
         jaasConfig:
           secretRef: credential
       tls:
-        enabled: true
+        enabled: false
     external:
       authentication:
         type: oauth
         jaasConfig:
           secretRef: oauth-jass
         oauthSettings:
-          tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
-          expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
-          jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
+          tokenEndpointUri: https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
+          expectedIssuer: https://login.microsoftonline.com/<tenant-id>/v2.0
+          jwksEndpointUri: https://login.microsoftonline.com/<tenant-id>/discovery/v2.0/keys
           groupsClaimName: groups
-          scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
-          audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
+          scope: api://<client-id>/.default
+          audience: <client-id>
           subClaimName: sub
   authorization:
     type: rbac
     superUsers:
-      - User:dbfa0b9c-17f5-4549-a082-ca1ab88af522
+      - User:<client-id>
       - User:kafka
   services:
     mds:
       tls:
-        enabled: true
+        enabled: false
       tokenKeyPair:
         secretRef: mds-token
       provider:
         oauth:
           configurations:
-            expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
-            jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
-            audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
-            scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
+            expectedIssuer: https://login.microsoftonline.com/<tenant-id>/v2.0
+            jwksEndpointUri: https://login.microsoftonline.com/<tenant-id>/discovery/v2.0/keys
+            audience: <client-id>
+            scope: api://<client-id>/.default
             groupsClaimName: groups
             subClaimName: sub
         sso:
@@ -97,18 +97,18 @@ spec:
             secretRef: oauth-jass-oidc
           configurations:
             subClaimName: sub
-            issuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
-            jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
-            authorizeBaseEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/authorize
-            tokenBaseEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
-            audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
+            issuer: https://login.microsoftonline.com/<tenant-id>/v2.0
+            jwksEndpointUri: https://login.microsoftonline.com/<tenant-id>/discovery/v2.0/keys
+            authorizeBaseEndpointUri: https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/authorize
+            tokenBaseEndpointUri: https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
+            audience: <client-id>
             groupsClaimName: groups
             refreshToken: false
   dependencies:
     kRaftController:
       controllerListener:
         tls:
-          enabled: true
+          enabled: false
         authentication:
           type: plain
           jaasConfig:
@@ -121,11 +121,11 @@ spec:
         jaasConfig:
           secretRef: oauth-jass
         oauthSettings:
-          tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
-          expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
-          jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
-          audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
-          scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
+          tokenEndpointUri: https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
+          expectedIssuer: https://login.microsoftonline.com/<tenant-id>/v2.0
+          jwksEndpointUri: https://login.microsoftonline.com/<tenant-id>/discovery/v2.0/keys
+          audience: <client-id>
+          scope: api://<client-id>/.default
           subClaimName: sub
   configOverrides:
     server:
@@ -158,9 +158,11 @@ spec:
       oauth:
         secretRef: oauth-jass
         configuration:
-          tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
-          audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
-          scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
+          tokenEndpointUri: https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
+          audience: <client-id>
+          expectedIssuer: https://login.microsoftonline.com/<tenant-id>/v2.0
+          jwksEndpointUri: https://login.microsoftonline.com/<tenant-id>/discovery/v2.0/keys
+          scope: api://<client-id>/.default
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: SchemaRegistry
@@ -180,9 +182,9 @@ spec:
     kafka:
       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
       tls:
-        enabled: true
+        enabled: false
     mds:
-      endpoint: https://kafka.confluent.svc.cluster.local:8090
+      endpoint: http://kafka.confluent.svc.cluster.local:8090
       tokenKeyPair:
         secretRef: mds-token
       authentication:
@@ -190,14 +192,14 @@ spec:
         oauth:
           secretRef: oauth-jass
           configuration:
-            tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
-            expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
-            jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
-            audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
-            scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
+            tokenEndpointUri: https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
+            expectedIssuer: https://login.microsoftonline.com/<tenant-id>/v2.0
+            jwksEndpointUri: https://login.microsoftonline.com/<tenant-id>/discovery/v2.0/keys
+            audience: <client-id>
+            scope: api://<client-id>/.default
             subClaimName: sub
       tls:
-        enabled: true
+        enabled: false
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: Connect
@@ -236,9 +238,9 @@ spec:
     kafka:
       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
       tls:
-        enabled: true
+        enabled: false
     mds:
-      endpoint: https://kafka.confluent.svc.cluster.local:8090
+      endpoint: http://kafka.confluent.svc.cluster.local:8090
       tokenKeyPair:
         secretRef: mds-token
       authentication:
@@ -246,14 +248,14 @@ spec:
         oauth:
           secretRef: oauth-jass
           configuration:
-            tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
-            expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
-            jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
-            audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
-            scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
+            tokenEndpointUri: https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
+            expectedIssuer: https://login.microsoftonline.com/<tenant-id>/v2.0
+            jwksEndpointUri: https://login.microsoftonline.com/<tenant-id>/discovery/v2.0/keys
+            audience: <client-id>
+            scope: api://<client-id>/.default
             subClaimName: sub
       tls:
-        enabled: true
+        enabled: false
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: ControlCenter
@@ -292,10 +294,10 @@ spec:
         jaasConfig:
           secretRef: credential
       tls:
-        enabled: true
+        enabled: false
     mds:
       ssoProtocol: oidc
-      endpoint: https://kafka.confluent.svc.cluster.local:8090
+      endpoint: http://kafka.confluent.svc.cluster.local:8090
       tokenKeyPair:
         secretRef: mds-token
       authentication:
@@ -303,21 +305,21 @@ spec:
         oauth:
           secretRef: oauth-jass
           configuration:
-            tokenEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/oauth2/v2.0/token
-            expectedIssuer: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/v2.0
-            jwksEndpointUri: https://login.microsoftonline.com/c4c941c3-9b03-4e82-96e8-17ee85b82667/discovery/v2.0/keys
-            audience: 330199f7-047e-4de4-a23b-441ebaeabeb6
+            tokenEndpointUri: https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
+            expectedIssuer: https://login.microsoftonline.com/<tenant-id>/v2.0
+            jwksEndpointUri: https://login.microsoftonline.com/<tenant-id>/discovery/v2.0/keys
+            audience: <client-id>
             subClaimName: sub
             groupsClaimName: groups
-            scope: api://330199f7-047e-4de4-a23b-441ebaeabeb6/.default
+            scope: api://<client-id>/.default
       tls:
-        enabled: true
+        enabled: false
     connect:
       - name: connect
-        url:  https://connect.confluent.svc.cluster.local:8083
+        url:  http://connect.confluent.svc.cluster.local:8083
         tls:
-          enabled: true
+          enabled: false
     schemaRegistry:
-      url: https://schemaregistry.confluent.svc.cluster.local:8081
+      url: http://schemaregistry.confluent.svc.cluster.local:8081
       tls:
-        enabled: true
+        enabled: false

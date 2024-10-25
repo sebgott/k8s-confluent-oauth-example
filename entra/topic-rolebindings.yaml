@@ -1,0 +1,36 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: client.developer-write
+  namespace: confluent
+spec:
+  principal:
+    type: user
+    name: 1341f087-02f3-4134-a0f2-b15b7f6ac066 # oauth-client
+  role: DeveloperWrite
+  resourcePatterns:
+  - name: cloud.test.produce
+    patternType: PREFIXED
+    resourceType: Topic
+  kafkaRestClassRef:
+    name: default
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: client.developer-read
+  namespace: confluent
+spec:
+  principal:
+    type: user
+    name: 1341f087-02f3-4134-a0f2-b15b7f6ac066 # oauth-client
+  role: DeveloperRead
+  resourcePatterns:
+  - name: cloud.test.produce
+    patternType: PREFIXED
+    resourceType: Topic
+  - name: client-
+    patternType: PREFIXED
+    resourceType: Group
+  kafkaRestClassRef:
+    name: default

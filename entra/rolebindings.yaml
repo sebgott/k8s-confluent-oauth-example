@@ -1,0 +1,11 @@
+# rolebinding `testuser1-cfrb-kafka` allows `testuser1` to see kafka cluster
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: group-clusteradmin-kafka
+  namespace: confluent
+spec:
+  principal:
+    name: a4ec0ffe-3865-4970-bad9-15578a65da95 # corresponding group oid from Azure
+    type: group
+  role: ClusterAdmin
