@@ -20,7 +20,7 @@ spec:
     type: rbac
     superUsers:
       - User:kafka
-      - User:<client-id>
+      - User:<oid>
   dependencies:
     mdsKafkaCluster:
       bootstrapEndpoint: kafka.confluent.svc.cluster.local:9073
@@ -74,7 +74,7 @@ spec:
   authorization:
     type: rbac
     superUsers:
-      - User:<client-id>
+      - User:dbfa0b9c-17f5-4549-a082-ca1ab88af522
       - User:kafka
   services:
     mds:
@@ -103,7 +103,7 @@ spec:
             tokenBaseEndpointUri: https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
             audience: <client-id>
             groupsClaimName: groups
-            refreshToken: false
+            refreshToken: true
   dependencies:
     kRaftController:
       controllerListener:
@@ -132,19 +132,19 @@ spec:
       - listener.name.external.oauthbearer.sasl.server.callback.handler.class=org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerValidatorCallbackHandler
       - listener.name.external.oauthbearer.sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required;
     log4j:
-      - log4j.logger.io.confluent.rest-utils=DEBUG, stdout
-      - log4j.additivity.io.confluent.rest-utils=false
-      - log4j.logger.io.confluent.rbacapi=DEBUG, stdout
-      - log4j.additivity.io.confluent.rbacapi=false
-      - log4j.logger.io.confluent.tokenapi=DEBUG, stdout
-      - log4j.additivity.io.confluent.tokenapi=false
-      - log4j.logger.io.confluent.security.auth=DEBUG, stdout
-      - log4j.additivity.io.confluent.security.auth=false
-      - log4j.logger.io.confluent.security.store=DEBUG, stdout
-      - log4j.additivity.io.confluent.security.store=false
-      - log4j.logger.io.confluent.common.security.jetty=DEBUG, stdout
-      - log4j.additivity.io.confluent.common.security.jetty=false
-      - log4j.logger.io.confluent.security.auth.provider.ldap=TRACE, stdout
+      # - log4j.logger.io.confluent.rest-utils=DEBUG, stdout
+      # - log4j.additivity.io.confluent.rest-utils=false
+      # - log4j.logger.io.confluent.rbacapi=DEBUG, stdout
+      # - log4j.additivity.io.confluent.rbacapi=false
+      # - log4j.logger.io.confluent.tokenapi=DEBUG, stdout
+      # - log4j.additivity.io.confluent.tokenapi=false
+      # - log4j.logger.io.confluent.security.auth=DEBUG, stdout
+      # - log4j.additivity.io.confluent.security.auth=false
+      # - log4j.logger.io.confluent.security.store=DEBUG, stdout
+      # - log4j.additivity.io.confluent.security.store=false
+      # - log4j.logger.io.confluent.common.security.jetty=DEBUG, stdout
+      # - log4j.additivity.io.confluent.common.security.jetty=false
+      # - log4j.logger.io.confluent.security.auth.provider.ldap=TRACE, stdout
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: KafkaRestClass

@@ -61,8 +61,8 @@ kubectl create secret generic credential \
 -n confluent
 
 kubectl create secret generic mds-token \
---from-file=mdsPublicKey.pem=mds-publickey.txt \
---from-file=mdsTokenKeyPair.pem=mds-tokenkeypair.txt \
+--from-file=mdsPublicKey.pem=mdsTokenPublic.pem \
+--from-file=mdsTokenKeyPair.pem=mdsToken.pem \
 -n confluent
 ```
 
