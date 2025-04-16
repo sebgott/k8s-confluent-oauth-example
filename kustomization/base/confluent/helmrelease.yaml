@@ -1,0 +1,34 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: confluent-for-kuberentes
+  namespace: confluent
+spec:
+  interval: 10m
+  timeout: 5m
+  valuesFrom:
+    - kind: ConfigMap
+      name: confluent-for-kuberentes-values
+  chart:
+    spec:
+      chart: confluent-for-kuberentes
+      version: '0.1193.1'
+      sourceRef:
+        kind: HelmRepository
+        name: confluentinc
+      interval: 5m
+  releaseName: confluentinc
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  test:
+    enable: true
+  driftDetection:
+    mode: enabled
+    ignore:
+    - paths: ["/spec/replicas"]
+      target:
+        kind: Deployment

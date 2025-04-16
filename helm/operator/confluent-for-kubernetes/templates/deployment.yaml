@@ -103,10 +103,18 @@ spec:
             value: {{ .Values.name }}
           - name: CONFLUENT_SERVICE_ACCOUNT_NAME
             value: {{ template "confluent-operator.service-account" . }}
+        {{- range .Values.customEnvVars }}
+          - name: {{ .name }}
+            value: {{ .value | quote }}
+        {{- end }}
         {{- if .Values.numDay2Worker }}
           - name: DEFAULT_DAY2_WORKER
             value: "{{ .Values.numDay2Worker }}"
         {{- end }}
+        {{- if .Values.enableCMFDay2Ops }}
+          - name: ENABLE_CMF_DAY2_OPS
+            value: "{{ .Values.enableCMFDay2Ops }}"
+         {{- end }}
         {{- if .Values.managedCerts.enabled }}
           {{- if and (empty .Values.managedCerts.caCertificate.secretRef) (empty .Values.managedCerts.caCertificate.directoryPathInContainer) }}
           {{- $_ := required "secretRef or directoryPathInContainer must be configured when managedCerts is enabled" .Values.managedCerts.secretRef }}
