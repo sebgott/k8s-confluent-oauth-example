@@ -11,6 +11,6 @@ generatorOptions:
   disableNameSuffixHash: true
 
 configMapGenerator:
-  - name: confluent-for-kuberentes-values
+  - name: confluent-for-kubernetes-values
     files:
       - values.yaml
