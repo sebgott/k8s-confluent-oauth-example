@@ -16,6 +16,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: confluentinc
+        namespace: confluent
       interval: 5m
   releaseName: confluentinc
   install:
