@@ -1,0 +1,29 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaRestClass
+metadata:
+  name: default
+  namespace: confluent
+spec:
+  kafkaRest:
+    authentication:
+      type: oauth
+      oauth:
+        secretRef: oauth-jass
+        configuration:
+          tokenEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+          expectedIssuer: http://keycloak:8080/realms/sso_test
+          jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+# ---
+# apiVersion: platform.confluent.io/v1beta1
+# kind: KafkaRestClass
+# metadata:
+#   name: default-ldap
+#   namespace: confluent
+# spec:
+#   kafkaClusterRef:
+#     name: kafka
+#   kafkaRest:
+#     authentication:
+#       type: bearer
+#       bearer:
+#         secretRef: rest-credential

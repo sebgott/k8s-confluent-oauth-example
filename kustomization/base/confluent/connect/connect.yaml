@@ -1,0 +1,63 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: Connect
+metadata:
+  name: connect
+  namespace: confluent
+spec:
+  configOverrides:
+    server:
+    # This is required due to limitation on connect worker in 7.7 for this upgrade
+    # configurations for producer, consumer & admin should remain same as in case of ldap 
+     - producer.sasl.login.callback.handler.class=io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler 
+     - producer.sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required metadataServerUrls="https://kafka.operator.svc.cluster.local:8090" username="connect" password="connect-secret";
+     - consumer.sasl.login.callback.handler.class=io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler
+     - consumer.sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required metadataServerUrls="https://kafka.operator.svc.cluster.local:8090" username="connect" password="connect-secret";
+     - admin.sasl.login.callback.handler.class=io.confluent.kafka.clients.plugins.auth.token.TokenUserLoginCallbackHandler 
+     - admin.sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required metadataServerUrls="https://kafka.operator.svc.cluster.local:8090" username="connect" password="connect-secret";
+  podTemplate:
+    probe:
+      liveness:
+        periodSeconds: 400
+        failureThreshold: 1
+        timeoutSeconds: 5
+      readiness:
+        periodSeconds: 400
+        failureThreshold: 5
+        timeoutSeconds: 5
+  replicas: 2
+  image:
+    application: confluentinc/cp-server-connect:7.7.0
+    init: confluentinc/confluent-init-container:2.9.0
+  build:
+    type: onDemand
+    onDemand:
+      plugins:
+        locationType: confluentHub
+        confluentHub:
+          - name: kafka-connect-datagen
+            owner: confluentinc
+            version: 0.5.2
+  tls:
+    secretRef: tls-group1
+  authorization:
+    type: rbac
+  dependencies:
+    kafka:
+      bootstrapEndpoint: kafka.confluent.svc.cluster.local:9071
+      tls:
+        enabled: true
+    mds:
+      endpoint: https://kafka.confluent.svc.cluster.local:8090
+      tokenKeyPair:
+        secretRef: mds-token
+      authentication:
+        type: oauth
+        oauth:
+          secretRef: oauth-jass
+          configuration:
+            tokenEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/token
+            expectedIssuer: http://keycloak:8080/realms/sso_test
+            jwksEndpointUri: http://keycloak:8080/realms/sso_test/protocol/openid-connect/certs
+            subClaimName: client_id
+      tls:
+        enabled: true

@@ -3,3 +3,40 @@ kind: Kustomization
 resources:
   - ../../base
   - confluent.yaml
+  - confluent
+  - keycloak
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: keycloak-configmap
+    files:
+      - keycloak/config.json
+
+secretGenerator:
+  - name: oauth-jaas
+    files:
+      - confluent/oauth_jaas.txt
+  - name: credential
+    files:
+      - confluent/users.json
+      - confluent/plain.txt
+      - confluent/oidcClientSecret.txt
+  - name: rest-credential
+    files:
+      - confluent/bearer.txt
+      - confluent/basic.txt
+  - name: mds-token
+    files:
+      - confluent/mdsPublicKey.pem
+      - confluent/mdsTokenKeyPair.pem
+  - name: tls-group1
+    files:
+      - confluent/fullchain.pem
+      - confluent/cacerts.pem
+      - confluent/privkey.pem
+  - name: ca-pair-sslcerts
+    files: 
+      - confluent/ca.pem
+      - confluent/ca-key.pem
